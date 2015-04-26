@@ -26,6 +26,23 @@ module.exports = function (hub, opts) {
       if (i > -1) swarm.peers.splice(i, 1)
     })
 
+    var signals = []
+    var sending = false
+
+    var kick = function () {
+      if (sending || !signals.length) return
+      sending = true
+      hub.broadcast(id, {from: me, signal: signals.shift()}, function () {
+        sending = false
+        kick()
+      })
+    }
+
+    peer.on('signal', function (sig) {
+      signals.push(sig)
+      kick()
+    })
+
     peer.on('error', onclose)
     peer.once('close', onclose)
   }
@@ -39,10 +56,6 @@ module.exports = function (hub, opts) {
       var peer = new SimplePeer({
         wrtc: opts.wrtc,
         initiator: true
-      })
-
-      peer.on('signal', function (sig) {
-        hub.broadcast(data.from, {from: me, signal: sig})
       })
 
       setup(peer, data.from)
@@ -62,10 +75,6 @@ module.exports = function (hub, opts) {
     if (!peer) {
       peer = remotes[data.from] = new SimplePeer({
         wrtc: opts.wrtc
-      })
-
-      peer.on('signal', function (sig) {
-        hub.broadcast(data.from, {from: me, signal: sig})
       })
 
       setup(peer, data.from)
