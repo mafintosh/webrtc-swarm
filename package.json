@@ -1,0 +1,23 @@
+{
+  "name": "webrtc-swarm",
+  "version": "0.0.0",
+  "description": "WIP - nothing to see here",
+  "main": "index.js",
+  "dependencies": {
+    "cuid": "^1.2.4",
+    "once": "^1.3.1",
+    "simple-peer": "^5.1.0",
+    "through2": "^0.6.5"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mafintosh/webrtc-swarm.git"
+  },
+  "author": "Mathias Buus (@mafintosh)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mafintosh/webrtc-swarm/issues"
+  },
+  "homepage": "https://github.com/mafintosh/webrtc-swarm"
+}
