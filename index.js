@@ -66,7 +66,9 @@ module.exports = function (hub, opts) {
   }))
 
   var connect = function () {
-    hub.broadcast('all', {type: 'connect', from: me})
+    hub.broadcast('all', {type: 'connect', from: me}, function () {
+      setTimeout(connect, hub.peers.length ? 15000 : 5000)
+    })
   }
 
   hub.subscribe(me).once('open', connect).pipe(through.obj(function (data, enc, cb) {
