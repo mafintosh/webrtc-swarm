@@ -13,7 +13,7 @@ var swarm = require('webrtc-swarm')
 var signalhub = require('signalhub')
 var wrtc = require('wrtc')
 
-var hub = signalhub('http://yourdomain.com', 'swarm-example)
+var hub = signalhub('http://yourdomain.com', 'swarm-example')
 
 var sw = swarm(hub, {
   wrtc: wrtc // you don't need this if you use it in the browser
