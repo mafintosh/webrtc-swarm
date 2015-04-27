@@ -73,6 +73,8 @@ module.exports = function (hub, opts) {
     var peer = remotes[data.from]
 
     if (!peer) {
+      if (!data.signal || data.signal.type !== 'offer') return cb()
+
       peer = remotes[data.from] = new SimplePeer({
         wrtc: opts.wrtc
       })
