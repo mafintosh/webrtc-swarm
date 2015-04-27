@@ -67,7 +67,7 @@ module.exports = function (hub, opts) {
 
   var connect = function () {
     hub.broadcast('all', {type: 'connect', from: me}, function () {
-      setTimeout(connect, hub.peers.length ? 15000 : 5000)
+      setTimeout(connect, swarm.peers.length ? 15000 : 5000)
     })
   }
 
