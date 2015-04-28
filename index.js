@@ -11,6 +11,7 @@ module.exports = function (hub, opts) {
   var remotes = {}
   var me = cuid()
 
+  swarm.maxPeers = opts.maxPeers || Infinity
   swarm.peers = []
 
   var setup = function (peer, id) {
@@ -51,6 +52,7 @@ module.exports = function (hub, opts) {
     if (data.from === me) return cb()
 
     if (data.type === 'connect') {
+      if (swarm.peers.length >= swarm.maxPeers) return cb()
       if (remotes[data.from]) return cb()
 
       var peer = new SimplePeer({
@@ -66,6 +68,7 @@ module.exports = function (hub, opts) {
   }))
 
   var connect = function () {
+    if (swarm.peers.length >= swarm.maxPeers) return
     hub.broadcast('all', {type: 'connect', from: me}, function () {
       setTimeout(connect, swarm.peers.length ? 15000 : 5000)
     })
