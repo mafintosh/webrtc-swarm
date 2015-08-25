@@ -2,7 +2,7 @@ var wrtc = require('wrtc')
 var signalhub = require('signalhub')
 var swarm = require('./')
 
-var sw = swarm(signalhub('dev.mathiasbuus.eu:8080', 'swarm-example'), {
+var sw = swarm(signalhub('swarm-example', 'dev.mathiasbuus.eu:8080'), {
   wrtc: wrtc
 })
 
