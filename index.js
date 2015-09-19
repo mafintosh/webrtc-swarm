@@ -25,7 +25,7 @@ module.exports = function (hub, opts) {
       if (remotes[id] === peer) delete remotes[id]
       var i = swarm.peers.indexOf(peer)
       if (i > -1) swarm.peers.splice(i, 1)
-      swarm.emit('close', peer, id)
+      swarm.emit('disconnect', peer, id)
     })
 
     var signals = []
