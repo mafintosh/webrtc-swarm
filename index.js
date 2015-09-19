@@ -18,7 +18,7 @@ module.exports = function (hub, opts) {
     peer.on('connect', function () {
       swarm.peers.push(peer)
       swarm.emit('peer', peer, id)
-      swarm.emit('connection', peer, id)
+      swarm.emit('connect', peer, id)
     })
 
     var onclose = once(function () {
