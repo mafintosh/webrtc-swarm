@@ -18,13 +18,14 @@ module.exports = function (hub, opts) {
     peer.on('connect', function () {
       swarm.peers.push(peer)
       swarm.emit('peer', peer, id)
-      swarm.emit('connection', peer, id)
+      swarm.emit('connect', peer, id)
     })
 
     var onclose = once(function () {
       if (remotes[id] === peer) delete remotes[id]
       var i = swarm.peers.indexOf(peer)
       if (i > -1) swarm.peers.splice(i, 1)
+      swarm.emit('disconnect', peer, id)
     })
 
     var signals = []
