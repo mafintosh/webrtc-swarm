@@ -73,7 +73,8 @@ module.exports = function (hub, opts) {
       debug('connecting to new peer (as initiator)', data.from )
       var peer = new SimplePeer({
         wrtc: opts.wrtc,
-        initiator: true
+        initiator: true,
+        config: opts.config
       })
 
       setup(peer, data.from)
@@ -100,7 +101,8 @@ module.exports = function (hub, opts) {
 
       debug('connecting to new peer (as not initiator)', data.from)
       peer = remotes[data.from] = new SimplePeer({
-        wrtc: opts.wrtc
+        wrtc: opts.wrtc,
+        config: opts.config
       })
 
       setup(peer, data.from)
