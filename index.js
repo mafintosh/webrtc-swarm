@@ -18,12 +18,14 @@ module.exports = function (hub, opts) {
 
   var setup = function (peer, id) {
     peer.on('connect', function () {
+      debug('connected to peer', id)
       swarm.peers.push(peer)
       swarm.emit('peer', peer, id)
       swarm.emit('connect', peer, id)
     })
 
-    var onclose = once(function () {
+    var onclose = once(function (err) {
+      debug('disconnected from peer', id, err)
       if (remotes[id] === peer) delete remotes[id]
       var i = swarm.peers.indexOf(peer)
       if (i > -1) swarm.peers.splice(i, 1)
@@ -53,12 +55,22 @@ module.exports = function (hub, opts) {
 
   hub.subscribe('all').pipe(through.obj(function (data, enc, cb) {
     debug('/all', data)
-    if (data.from === me) return cb()
+    if (data.from === me) {
+      debug('skipping self', data.from)
+      return cb()
+    }
 
     if (data.type === 'connect') {
-      if (swarm.peers.length >= swarm.maxPeers) return cb()
-      if (remotes[data.from]) return cb()
+      if (swarm.peers.length >= swarm.maxPeers) {
+        debug('skipping because maxPeers is met', data.from)
+        return cb()
+      }
+      if (remotes[data.from]) {
+        debug('skipping existing remote', data.from)
+        return cb()
+      }
 
+      debug('connecting to new peer (as initiator)', data.from )
       var peer = new SimplePeer({
         wrtc: opts.wrtc,
         initiator: true
@@ -80,10 +92,13 @@ module.exports = function (hub, opts) {
 
   hub.subscribe(me).once('open', connect).pipe(through.obj(function (data, enc, cb) {
     var peer = remotes[data.from]
-    debug('/me', data)
     if (!peer) {
-      if (!data.signal || data.signal.type !== 'offer') return cb()
+      if (!data.signal || data.signal.type !== 'offer') {
+        debug('skipping non-offer', data)
+        return cb()
+      }
 
+      debug('connecting to new peer (as not initiator)', data.from)
       peer = remotes[data.from] = new SimplePeer({
         wrtc: opts.wrtc
       })
@@ -91,6 +106,7 @@ module.exports = function (hub, opts) {
       setup(peer, data.from)
     }
 
+    debug('signalling', data.from, data.signal)
     peer.signal(data.signal)
     cb()
   }))
