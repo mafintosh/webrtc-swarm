@@ -86,7 +86,7 @@ module.exports = function (hub, opts) {
   var connect = function () {
     if (swarm.peers.length >= swarm.maxPeers) return
     hub.broadcast('all', {type: 'connect', from: me}, function () {
-      setTimeout(connect, Math.floor(Math.random() * 2000) + swarm.peers.length ? 13000 : 3000)
+      setTimeout(connect, Math.floor(Math.random() * 2000) + (swarm.peers.length ? 13000 : 3000))
     })
   }
 
