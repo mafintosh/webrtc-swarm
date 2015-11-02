@@ -3,6 +3,7 @@ var events = require('events')
 var through = require('through2')
 var cuid = require('cuid')
 var once = require('once')
+var debug = require('debug')('webrtc-swarm')
 
 module.exports = function (hub, opts) {
   if (!opts) opts = {}
@@ -10,6 +11,7 @@ module.exports = function (hub, opts) {
   var swarm = new events.EventEmitter()
   var remotes = {}
   var me = cuid()
+  debug('my uuid:', me)
 
   swarm.maxPeers = opts.maxPeers || Infinity
   swarm.peers = []
@@ -50,6 +52,7 @@ module.exports = function (hub, opts) {
   }
 
   hub.subscribe('all').pipe(through.obj(function (data, enc, cb) {
+    debug('/all', data)
     if (data.from === me) return cb()
 
     if (data.type === 'connect') {
@@ -77,7 +80,7 @@ module.exports = function (hub, opts) {
 
   hub.subscribe(me).once('open', connect).pipe(through.obj(function (data, enc, cb) {
     var peer = remotes[data.from]
-
+    debug('/me', data)
     if (!peer) {
       if (!data.signal || data.signal.type !== 'offer') return cb()
 
