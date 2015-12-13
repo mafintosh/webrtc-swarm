@@ -10,7 +10,7 @@ module.exports = function (hub, opts) {
 
   var swarm = new events.EventEmitter()
   var remotes = {}
-  var me = cuid()
+  var me = opts.uuid || cuid()
   debug('my uuid:', me)
 
   swarm.maxPeers = opts.maxPeers || Infinity
@@ -57,6 +57,10 @@ module.exports = function (hub, opts) {
     debug('/all', data)
     if (data.from === me) {
       debug('skipping self', data.from)
+      return cb()
+    }
+    if (opts.whitelist && opts.whitelist.indexOf(data.from) === -1) {
+      debug('skipping not whitelisted peer', data.from)
       return cb()
     }
 
