@@ -38,7 +38,12 @@ module.exports = function (hub, opts) {
     var kick = function () {
       if (sending || !signals.length) return
       sending = true
-      hub.broadcast(id, {from: me, signal: signals.shift()}, function () {
+      var signal
+      if (opts.crypto) {
+        var plaintext = JSON.stringify(signals.shift())
+        signal = opts.crypto.encrypt(plaintext, id)
+      } else signal = signals.shift()
+      hub.broadcast(id, {from: me, signal: signal}, function () {
         sending = false
         kick()
       })
@@ -98,6 +103,10 @@ module.exports = function (hub, opts) {
   hub.subscribe(me).once('open', connect).pipe(through.obj(function (data, enc, cb) {
     var peer = remotes[data.from]
     if (!peer) {
+      if (data.signal && opts.crypto) {
+        var plaintext = opts.crypto.decrypt(data.signal, data.from)
+        data.signal = JSON.parse(plaintext)
+      }
       if (!data.signal || data.signal.type !== 'offer') {
         debug('skipping non-offer', data)
         return cb()
