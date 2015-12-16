@@ -57,12 +57,9 @@ module.exports = function (hub, opts) {
 
   hub.subscribe('all').pipe(through.obj(function (data, enc, cb) {
     debug('/all', data)
+    if (opts.crypto) data = opts.crypto.decrypt(data)
     if (data.from === me) {
       debug('skipping self', data.from)
-      return cb()
-    }
-    if (opts.whitelist && opts.whitelist.indexOf(data.from) === -1) {
-      debug('skipping not whitelisted peer', data.from)
       return cb()
     }
 
@@ -92,19 +89,15 @@ module.exports = function (hub, opts) {
 
   var connect = function () {
     if (swarm.peers.length >= swarm.maxPeers) return
-    hub.broadcast('all', {type: 'connect', from: me}, function () {
+    var data = {type: 'connect', from: me}
+    if (opts.crypto) data = opts.crypto.encrypt(data)
+    hub.broadcast('all', data, function () {
       setTimeout(connect, Math.floor(Math.random() * 2000) + (swarm.peers.length ? 13000 : 3000))
     })
   }
 
   hub.subscribe(me).once('open', connect).pipe(through.obj(function (data, enc, cb) {
-    if (opts.crypto) {
-      if (opts.crypto.verify && !opts.crypto.verify(data)) {
-        debug('cryptographic verification failed', data.from)
-        return cb()
-      }
-      data = opts.crypto.decrypt(data)
-    }
+    if (opts.crypto) data = opts.crypto.decrypt(data)
     var peer = remotes[data.from]
     if (!peer) {
       if (!data.signal || data.signal.type !== 'offer') {
