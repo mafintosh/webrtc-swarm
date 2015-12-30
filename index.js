@@ -7,6 +7,8 @@ var debug = require('debug')('webrtc-swarm')
 
 module.exports = function (hub, opts) {
   if (!opts) opts = {}
+  var wrap = opts.wrap || function (dat) { return dat }
+  var unwrap = opts.unwrap || function (dat) { return dat }
 
   var swarm = new events.EventEmitter()
   var remotes = {}
@@ -39,7 +41,7 @@ module.exports = function (hub, opts) {
       if (sending || !signals.length) return
       sending = true
       var data = {from: me, signal: signals.shift()}
-      if (opts.crypto) data = opts.crypto.encrypt(data)
+      data = wrap(data, id)
       hub.broadcast(id, data, function () {
         sending = false
         kick()
@@ -56,8 +58,10 @@ module.exports = function (hub, opts) {
   }
 
   hub.subscribe('all').pipe(through.obj(function (data, enc, cb) {
+    data = unwrap(data, 'all')
+    if (!data) return cb()
+
     debug('/all', data)
-    if (opts.crypto) data = opts.crypto.decrypt(data)
     if (data.from === me) {
       debug('skipping self', data.from)
       return cb()
@@ -73,7 +77,7 @@ module.exports = function (hub, opts) {
         return cb()
       }
 
-      debug('connecting to new peer (as initiator)', data.from )
+      debug('connecting to new peer (as initiator)', data.from)
       var peer = new SimplePeer({
         wrtc: opts.wrtc,
         initiator: true,
@@ -90,14 +94,16 @@ module.exports = function (hub, opts) {
   var connect = function () {
     if (swarm.peers.length >= swarm.maxPeers) return
     var data = {type: 'connect', from: me}
-    if (opts.crypto) data = opts.crypto.encrypt(data)
+    data = wrap(data, 'all')
     hub.broadcast('all', data, function () {
       setTimeout(connect, Math.floor(Math.random() * 2000) + (swarm.peers.length ? 13000 : 3000))
     })
   }
 
   hub.subscribe(me).once('open', connect).pipe(through.obj(function (data, enc, cb) {
-    if (opts.crypto) data = opts.crypto.decrypt(data)
+    data = unwrap(data, me)
+    if (!data) return cb()
+
     var peer = remotes[data.from]
     if (!peer) {
       if (!data.signal || data.signal.type !== 'offer') {
