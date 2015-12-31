@@ -7,8 +7,8 @@ var debug = require('debug')('webrtc-swarm')
 
 module.exports = function (hub, opts) {
   if (!opts) opts = {}
-  var wrap = opts.wrap || function (dat) { return dat }
-  var unwrap = opts.unwrap || function (dat) { return dat }
+  var wrap = opts.wrap || function (data) { return data }
+  var unwrap = opts.unwrap || function (data) { return data }
 
   var swarm = new events.EventEmitter()
   var remotes = {}
