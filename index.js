@@ -7,10 +7,12 @@ var debug = require('debug')('webrtc-swarm')
 
 module.exports = function (hub, opts) {
   if (!opts) opts = {}
+  var wrap = opts.wrap || function (data) { return data }
+  var unwrap = opts.unwrap || function (data) { return data }
 
   var swarm = new events.EventEmitter()
   var remotes = {}
-  var me = cuid()
+  var me = opts.uuid || cuid()
   debug('my uuid:', me)
 
   swarm.maxPeers = opts.maxPeers || Infinity
@@ -38,7 +40,9 @@ module.exports = function (hub, opts) {
     var kick = function () {
       if (sending || !signals.length) return
       sending = true
-      hub.broadcast(id, {from: me, signal: signals.shift()}, function () {
+      var data = {from: me, signal: signals.shift()}
+      data = wrap(data, id)
+      hub.broadcast(id, data, function () {
         sending = false
         kick()
       })
@@ -54,6 +58,9 @@ module.exports = function (hub, opts) {
   }
 
   hub.subscribe('all').pipe(through.obj(function (data, enc, cb) {
+    data = unwrap(data, 'all')
+    if (!data) return cb()
+
     debug('/all', data)
     if (data.from === me) {
       debug('skipping self', data.from)
@@ -70,7 +77,7 @@ module.exports = function (hub, opts) {
         return cb()
       }
 
-      debug('connecting to new peer (as initiator)', data.from )
+      debug('connecting to new peer (as initiator)', data.from)
       var peer = new SimplePeer({
         wrtc: opts.wrtc,
         initiator: true,
@@ -86,12 +93,17 @@ module.exports = function (hub, opts) {
 
   var connect = function () {
     if (swarm.peers.length >= swarm.maxPeers) return
-    hub.broadcast('all', {type: 'connect', from: me}, function () {
+    var data = {type: 'connect', from: me}
+    data = wrap(data, 'all')
+    hub.broadcast('all', data, function () {
       setTimeout(connect, Math.floor(Math.random() * 2000) + (swarm.peers.length ? 13000 : 3000))
     })
   }
 
   hub.subscribe(me).once('open', connect).pipe(through.obj(function (data, enc, cb) {
+    data = unwrap(data, me)
+    if (!data) return cb()
+
     var peer = remotes[data.from]
     if (!peer) {
       if (!data.signal || data.signal.type !== 'offer') {
