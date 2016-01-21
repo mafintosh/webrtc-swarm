@@ -10,7 +10,9 @@
     "simple-peer": "^5.1.0",
     "through2": "^2.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "signalhub": "^4.3.1"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mafintosh/webrtc-swarm.git"
