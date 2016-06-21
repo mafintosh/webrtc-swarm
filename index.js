@@ -9,6 +9,7 @@ module.exports = function (hub, opts) {
   if (!opts) opts = {}
   var wrap = opts.wrap || function (data) { return data }
   var unwrap = opts.unwrap || function (data) { return data }
+  var offerConstraints = opts.offerConstraints || {}
 
   var swarm = new events.EventEmitter()
   var remotes = {}
@@ -81,7 +82,8 @@ module.exports = function (hub, opts) {
       var peer = new SimplePeer({
         wrtc: opts.wrtc,
         initiator: true,
-        config: opts.config
+        config: opts.config,
+        offerConstraints: offerConstraints
       })
 
       setup(peer, data.from)
@@ -114,7 +116,8 @@ module.exports = function (hub, opts) {
       debug('connecting to new peer (as not initiator)', data.from)
       peer = remotes[data.from] = new SimplePeer({
         wrtc: opts.wrtc,
-        config: opts.config
+        config: opts.config,
+        offerConstraints: offerConstraints
       })
 
       setup(peer, data.from)
