@@ -50,6 +50,10 @@ if not supplied.
 - `maxPeers` - (optional) the maximum number of peers you wish to connect to.
 Defaults to unlimited.
 
+### sw.close()
+
+Disconnect from swarm
+
 ### sw.on('peer|connect', peer, id)
 
 `peer` and `connect` are interchangeable. Fires when a connection has been
@@ -59,10 +63,27 @@ established to a new peer `peer`, with unique id `id`.
 
 Fires when an existing peer connection is lost.
 
+### sw.on('close')
+
+Fires when all peer and signalhub connections are closed
+
 ### sw.peers
 
 A list of peers that `sw` is currently connected to.
 
+### swarm.WEBRTC_SUPPORT
+
+Detect native WebRTC support in the javascript environment.
+
+```js
+var swarm = require('webrtc-swarm')
+
+if (swarm.WEBRTC_SUPPORT) {
+  // webrtc support!
+} else {
+  // fallback
+}
+```
 
 ## License
 
