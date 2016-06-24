@@ -38,7 +38,7 @@ inherits(WebRTCSwarm, events.EventEmitter)
 WebRTCSwarm.WEBRTC_SUPPORT = SimplePeer.WEBRTC_SUPPORT
 
 WebRTCSwarm.prototype.close = function (cb) {
-  if (this.closed) throw new Error('Swarm already closed')
+  if (this.closed) return
   this.closed = true
 
   if (cb) this.once('close', cb)
