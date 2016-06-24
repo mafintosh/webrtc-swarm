@@ -37,47 +37,6 @@ inherits(WebRTCSwarm, events.EventEmitter)
 
 WebRTCSwarm.WEBRTC_SUPPORT = SimplePeer.WEBRTC_SUPPORT
 
-WebRTCSwarm.prototype.setup = function (peer, id) {
-  var self = this
-
-  peer.on('connect', function () {
-    debug('connected to peer', id)
-    self.peers.push(peer)
-    self.emit('peer', peer, id)
-    self.emit('connect', peer, id)
-  })
-
-  var onclose = once(function (err) {
-    debug('disconnected from peer', id, err)
-    if (self.remotes[id] === peer) delete self.remotes[id]
-    var i = self.peers.indexOf(peer)
-    if (i > -1) self.peers.splice(i, 1)
-    self.emit('disconnect', peer, id)
-  })
-
-  var signals = []
-  var sending = false
-
-  function kick () {
-    if (self.closed || sending || !signals.length) return
-    sending = true
-    var data = {from: self.me, signal: signals.shift()}
-    data = self.wrap(data, id)
-    self.hub.broadcast(id, data, function () {
-      sending = false
-      kick()
-    })
-  }
-
-  peer.on('signal', function (sig) {
-    signals.push(sig)
-    kick()
-  })
-
-  peer.on('error', onclose)
-  peer.once('close', onclose)
-}
-
 WebRTCSwarm.prototype.close = function (cb) {
   if (this.closed) throw new Error('Swarm already closed')
   this.closed = true
@@ -103,6 +62,45 @@ WebRTCSwarm.prototype.close = function (cb) {
       self.emit('close')
     }
   })
+}
+
+function setup (swarm, peer, id) {
+  peer.on('connect', function () {
+    debug('connected to peer', id)
+    swarm.peers.push(peer)
+    swarm.emit('peer', peer, id)
+    swarm.emit('connect', peer, id)
+  })
+
+  var onclose = once(function (err) {
+    debug('disconnected from peer', id, err)
+    if (swarm.remotes[id] === peer) delete swarm.remotes[id]
+    var i = swarm.peers.indexOf(peer)
+    if (i > -1) swarm.peers.splice(i, 1)
+    swarm.emit('disconnect', peer, id)
+  })
+
+  var signals = []
+  var sending = false
+
+  function kick () {
+    if (swarm.closed || sending || !signals.length) return
+    sending = true
+    var data = {from: swarm.me, signal: signals.shift()}
+    data = swarm.wrap(data, id)
+    swarm.hub.broadcast(id, data, function () {
+      sending = false
+      kick()
+    })
+  }
+
+  peer.on('signal', function (sig) {
+    signals.push(sig)
+    kick()
+  })
+
+  peer.on('error', onclose)
+  peer.once('close', onclose)
 }
 
 function subscribe (swarm, hub) {
@@ -134,7 +132,7 @@ function subscribe (swarm, hub) {
         offerConstraints: swarm.offerConstraints
       })
 
-      swarm.setup(peer, data.from)
+      setup(swarm, peer, data.from)
       swarm.remotes[data.from] = peer
     }
 
@@ -159,7 +157,7 @@ function subscribe (swarm, hub) {
         offerConstraints: swarm.offerConstraints
       })
 
-      swarm.setup(peer, data.from)
+      setup(swarm, peer, data.from)
     }
 
     debug('signalling', data.from, data.signal)

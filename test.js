@@ -2,12 +2,13 @@ var tape = require('tape')
 var signalhub = require('signalhub')
 var swarm = require('./')
 var wrtc = require('electron-webrtc')()
+var crypto = require('crypto')
 
 tape('greet and close', function (t) {
-  t.plan(5)
+  t.plan(6)
 
-  var peer1 = swarm(signalhub('swarmtest', 'https://signalhub.mafintosh.com'), {wrtc})
-  var peer2 = swarm(signalhub('swarmtest', 'https://signalhub.mafintosh.com'), {wrtc})
+  var peer1 = swarm(signalhub(randomHex('64'), 'https://signalhub.mafintosh.com'), {wrtc})
+  var peer2 = swarm(signalhub(randomHex('64'), 'https://signalhub.mafintosh.com'), {wrtc})
 
   var greeting = 'peer 1 says hello'
   var goodbye = 'peer 2 says goodbye'
@@ -25,7 +26,7 @@ tape('greet and close', function (t) {
   })
 
   peer2.on('peer', function (peer, id) {
-    console.log('peer 2 joined by', id)
+    t.ok(1, 'peer 2 joined by', id)
     peer.on('data', function (c) {
       t.equal(c.toString(), greeting, 'greeting received')
       peer.send(goodbye)
@@ -43,3 +44,9 @@ tape('greet and close', function (t) {
     t.comment('peer 2 disconnected from ' + id)
   })
 })
+
+function randomHex (len) {
+  return crypto.randomBytes(Math.ceil(len / 2))
+         .toString('hex') // convert to hexadecimal format
+         .slice(0, len)   // return required number of characters
+}
