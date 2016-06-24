@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "electron-webrtc": "^0.2.6",
+    "inherits": "^2.0.1",
     "signalhub": "^4.7.1",
     "standard": "^7.1.2",
     "tape": "^4.6.0"
