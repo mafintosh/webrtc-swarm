@@ -42,13 +42,24 @@ Creates a new webrtc swarm using
 [signalhub](https://github.com/mafintosh/signalhub) `hub` for discovery and
 connection brokering.
 
-Valid keys for `opts` include
+Valid keys for `opts` include:
 
 - `wrtc` - (optional) a reference to the `wrtc` library, if using Node.
-- `uuid` - (optional) a unique identifier for this peer. One is generated for you
-if not supplied.
+- `uuid` - (optional) a unique identifier for this peer. One is generated for
+you if not supplied.
 - `maxPeers` - (optional) the maximum number of peers you wish to connect to.
 Defaults to unlimited.
+
+Additional optional keys can be passed through to the underlying
+[simple-peer](https://www.npmjs.com/package/simple-peer) instances:
+
+- `channelConfig` -  custom webrtc data channel configuration (used by
+`createDataChannel`)
+- `config` - custom webrtc configuration (used by `RTCPeerConnection`
+constructor)
+- `stream` - if video/voice is desired, pass stream returned from
+`getUserMedia`
+
 
 ### sw.close()
 
@@ -59,9 +70,13 @@ Disconnect from swarm
 `peer` and `connect` are interchangeable. Fires when a connection has been
 established to a new peer `peer`, with unique id `id`.
 
+peer is a [simple-peer](https://www.npmjs.com/package/simple-peer) instance.
+
 ### sw.on('disconnect', peer, id)
 
 Fires when an existing peer connection is lost.
+
+peer is a [simple-peer](https://www.npmjs.com/package/simple-peer) instance.
 
 ### sw.on('close')
 

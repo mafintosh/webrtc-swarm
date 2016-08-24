@@ -18,6 +18,7 @@ function WebRTCSwarm (hub, opts) {
 
   this.hub = hub
   this.wrtc = opts.wrtc
+  this.channelConfig = opts.channelConfig
   this.config = opts.config
   this.stream = opts.stream
   this.wrap = opts.wrap || function (data) { return data }
@@ -129,6 +130,7 @@ function subscribe (swarm, hub) {
       var peer = new SimplePeer({
         wrtc: swarm.wrtc,
         initiator: true,
+        channelConfig: swarm.channelConfig,
         config: swarm.config,
         stream: swarm.stream,
         offerConstraints: swarm.offerConstraints
@@ -155,6 +157,7 @@ function subscribe (swarm, hub) {
       debug('connecting to new peer (as not initiator)', data.from)
       peer = swarm.remotes[data.from] = new SimplePeer({
         wrtc: swarm.wrtc,
+        channelConfig: swarm.channelConfig,
         config: swarm.config,
         stream: swarm.stream,
         offerConstraints: swarm.offerConstraints
