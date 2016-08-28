@@ -70,13 +70,11 @@ Disconnect from swarm
 `peer` and `connect` are interchangeable. Fires when a connection has been
 established to a new peer `peer`, with unique id `id`.
 
-peer is a [simple-peer](https://www.npmjs.com/package/simple-peer) instance.
-
 ### sw.on('disconnect', peer, id)
 
 Fires when an existing peer connection is lost.
 
-peer is a [simple-peer](https://www.npmjs.com/package/simple-peer) instance.
+`peer` is a [simple-peer](https://www.npmjs.com/package/simple-peer) instance.
 
 ### sw.on('close')
 
