@@ -7,8 +7,10 @@ var crypto = require('crypto')
 tape('greet and close', function (t) {
   t.plan(6)
 
-  var peer1 = swarm(signalhub(randomHex('64'), 'https://signalhub.mafintosh.com'), {wrtc})
-  var peer2 = swarm(signalhub(randomHex('64'), 'https://signalhub.mafintosh.com'), {wrtc})
+  var key = randomHex('64')
+
+  var peer1 = swarm(signalhub(key, 'https://signalhub.mafintosh.com'), {wrtc})
+  var peer2 = swarm(signalhub(key, 'https://signalhub.mafintosh.com'), {wrtc})
 
   var greeting = 'peer 1 says hello'
   var goodbye = 'peer 2 says goodbye'
@@ -34,14 +36,6 @@ tape('greet and close', function (t) {
         t.ok(1, 'peer 2 closed')
       })
     })
-  })
-
-  peer1.on('disconnect', function (peer, id) {
-    t.comment('peer 1 disconnected from ' + id)
-  })
-
-  peer2.on('disconnect', function (peer, id) {
-    t.comment('peer 2 disconnected from ' + id)
   })
 })
 
