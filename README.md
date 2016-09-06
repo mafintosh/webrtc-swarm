@@ -60,6 +60,9 @@ constructor)
 - `stream` - if video/voice is desired, pass stream returned from
 `getUserMedia`
 
+**NOTE:** It's been observed in Chrome that you cannot establish a connection between more than 2 local peers.
+You can workaround this by opening other tabs in incognito mode. It's unclear which browsers are affected but
+this condition has been observed in Chrome 52 and 53.
 
 ### sw.close()
 
