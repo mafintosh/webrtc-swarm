@@ -135,6 +135,7 @@ function subscribe (swarm, hub) {
         stream: swarm.stream,
         offerConstraints: swarm.offerConstraints
       })
+      peer.on('stream', function (stream) { peer.stream = stream; })
 
       setup(swarm, peer, data.from)
       swarm.remotes[data.from] = peer
@@ -162,6 +163,7 @@ function subscribe (swarm, hub) {
         stream: swarm.stream,
         offerConstraints: swarm.offerConstraints
       })
+      peer.on('stream', function (stream) { peer.stream = stream; })
 
       setup(swarm, peer, data.from)
     }
