@@ -144,7 +144,7 @@ function subscribe (swarm, hub) {
   }))
 
   hub.subscribe(swarm.me).once('open', connect.bind(null, swarm, hub)).pipe(through.obj(function (data, enc, cb) {
-    data = swarm.unwrap(data, 'all')
+    data = swarm.unwrap(data, swarm.me)
     if (swarm.closed || !data) return cb()
 
     var peer = swarm.remotes[data.from]
