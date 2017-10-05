@@ -11,7 +11,7 @@ test.onFinish(function () {
 
 server.listen(9000, function () {
   test('greet and close', function (t) {
-    t.plan(6)
+    t.plan(8)
 
     var hub1 = signalhub('app', 'localhost:9000')
     var hub2 = signalhub('app', 'localhost:9000')
@@ -22,26 +22,42 @@ server.listen(9000, function () {
     var greeting = 'hello'
     var goodbye = 'goodbye'
 
+    var peerIds = {}
+
     sw1.on('peer', function (peer, id) {
-      t.pass('peer from sw2 joined')
+      t.pass('connected to peer from sw2')
+      peerIds.sw2 = id
       peer.send(greeting)
       peer.on('data', function (data) {
         t.equal(data.toString(), goodbye, 'goodbye received')
         sw1.close(function () {
-          t.pass('sw1 closed')
+          t.pass('swarm sw1 closed')
         })
       })
     })
 
     sw2.on('peer', function (peer, id) {
-      t.pass('peer from sw1 joined')
+      t.pass('connected to peer from sw1')
+      peerIds.sw1 = id
       peer.on('data', function (data) {
         t.equal(data.toString(), greeting, 'greeting received')
         peer.send(goodbye)
         sw2.close(function () {
-          t.pass('sw2 closed')
+          t.pass('swarm sw2 closed')
         })
       })
+    })
+
+    sw1.on('disconnect', function (peer, id) {
+      if (id === peerIds.sw2) {
+        t.pass('connection to peer from sw2 lost')
+      }
+    })
+
+    sw2.on('disconnect', function (peer, id) {
+      if (id === peerIds.sw1) {
+        t.pass('connection to peer from sw1 lost')
+      }
     })
   })
 })
