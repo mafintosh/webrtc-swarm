@@ -49,6 +49,12 @@ Valid keys for `opts` include:
 you if not supplied.
 - `maxPeers` - (optional) the maximum number of peers you wish to connect to.
 Defaults to unlimited.
+- `wrap` - (optional) a function that can modify the WebRTC signaling data
+before it gets send out. It's called  with `wrap(outgoingSignalingData,
+destinationSignalhubChannel)` and must return the wrapped signaling data.
+- `unwrap` - (optional) a function that can modify the WebRTC signaling data
+before it gets processed. It's called  with `unwrap(incomingData,
+sourceSignalhubChannel)` and must return the raw signaling data.
 
 Additional optional keys can be passed through to the underlying
 [simple-peer](https://www.npmjs.com/package/simple-peer) instances:
