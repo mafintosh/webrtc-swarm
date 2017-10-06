@@ -51,7 +51,7 @@ you if not supplied.
 Defaults to unlimited.
 - `wrap` - (optional) a function that can modify the WebRTC signaling data
 before it gets send out. It's called  with `wrap(outgoingSignalingData,
-destinationSignalhubChannel)` and must return the modified signaling data.
+destinationSignalhubChannel)` and must return the wrapped signaling data.
 - `unwrap` - (optional) a function that can modify the WebRTC signaling data
 before it gets processed. It's called  with `unwrap(incomingData,
 sourceSignalhubChannel)` and must return the raw signaling data.
