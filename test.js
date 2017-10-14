@@ -4,11 +4,13 @@ var swarm = require('./')
 var wrtc = require('electron-webrtc')()
 var crypto = require('crypto')
 
-tape('greet and close', function (t) {
+tape('two peers exchange data and close', function (t) {
   t.plan(6)
 
-  var peer1 = swarm(signalhub(randomHex('64'), 'https://signalhub.mafintosh.com'), {wrtc})
-  var peer2 = swarm(signalhub(randomHex('64'), 'https://signalhub.mafintosh.com'), {wrtc})
+  var key = randomHex('64')
+
+  var peer1 = swarm(signalhub(key, 'https://signalhub.mafintosh.com'), {wrtc})
+  var peer2 = swarm(signalhub(key, 'https://signalhub.mafintosh.com'), {wrtc})
 
   var greeting = 'peer 1 says hello'
   var goodbye = 'peer 2 says goodbye'
@@ -20,7 +22,6 @@ tape('greet and close', function (t) {
       t.equal(c.toString(), goodbye, 'goodbye received')
       peer1.close(function () {
         t.ok(1, 'peer 1 closed')
-        if (wrtc) wrtc.close()
       })
     })
   })
@@ -35,13 +36,29 @@ tape('greet and close', function (t) {
       })
     })
   })
+})
 
-  peer1.on('disconnect', function (peer, id) {
-    t.comment('peer 1 disconnected from ' + id)
-  })
+tape('three peers connect and close', function (t) {
+  t.plan(10)
 
-  peer2.on('disconnect', function (peer, id) {
-    t.comment('peer 2 disconnected from ' + id)
+  var key = randomHex('64')
+
+  var counts = 0
+  var peers = Array(3).fill(0).map(function () { return swarm(signalhub(key, 'https://signalhub.mafintosh.com'), {wrtc}) })
+
+  peers.forEach(function (peer, i) {
+    peer.on('peer', function () {
+      t.ok(1, ++counts + ' connections')
+      if (counts === 6) {
+        t.ok(1, 'everyone connected')
+        peers.forEach(function (peer, i) {
+          peer.close(function () {
+            t.ok(1, 'peer ' + i + ' closed')
+          })
+        })
+        if (wrtc) wrtc.close()
+      }
+    })
   })
 })
 
