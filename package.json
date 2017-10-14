@@ -1,6 +1,6 @@
 {
   "name": "webrtc-swarm",
-  "version": "2.8.0",
+  "version": "2.9.0",
   "description": "Create a swarm of p2p connections using webrtc and a signalhub",
   "main": "index.js",
   "scripts": {
