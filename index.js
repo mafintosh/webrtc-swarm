@@ -67,17 +67,13 @@ WebRTCSwarm.prototype.close = function (cb) {
 }
 
 function setup (swarm, peer, id) {
-  var delayedStreams = [];
+  var delayedStreams = []
+  function onStreamWhileNotConnected (stream) {
+    debug('on stream while peer', id, 'not connected', stream)
+    delayedStreams.push(stream)
+  }
 
-  peer.on('stream', function onStreamWhileNotConnected (stream) {
-    debug('peer', id, 'is', (peer.connected ? '' : 'not ') + 'connected')
-    if (peer.connected) {
-      peer.removeListener('stream', onStreamWhileNotConnected)
-    } else {
-      debug('on stream while peer', id, 'not connected', stream)
-      delayedStreams.push(stream)
-    }
-  })
+  peer.on('stream', onStreamWhileNotConnected)
 
   peer.on('connect', function () {
     debug('connected to peer', id)
@@ -87,7 +83,8 @@ function setup (swarm, peer, id) {
     delayedStreams.forEach(function (stream) {
       peer.emit('stream', stream)
     })
-    delayedStreams = [];
+    peer.removeListener('stream', onStreamWhileNotConnected)
+    delayedStreams = null
   })
 
   var onclose = once(function (err) {
