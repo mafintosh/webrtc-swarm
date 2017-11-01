@@ -19,7 +19,7 @@ server.listen(9000, function () {
     var sw1 = swarm(hub1, {wrtc})
     var sw2 = swarm(hub2, {wrtc})
 
-    var greeting = 'hello'
+    var hello = 'hello'
     var goodbye = 'goodbye'
 
     var peerIds = {}
@@ -27,7 +27,7 @@ server.listen(9000, function () {
     sw1.on('peer', function (peer, id) {
       t.pass('connected to peer from sw2')
       peerIds.sw2 = id
-      peer.send(greeting)
+      peer.send(hello)
       peer.on('data', function (data) {
         t.equal(data.toString(), goodbye, 'goodbye received')
         sw1.close(function () {
@@ -40,7 +40,7 @@ server.listen(9000, function () {
       t.pass('connected to peer from sw1')
       peerIds.sw1 = id
       peer.on('data', function (data) {
-        t.equal(data.toString(), greeting, 'greeting received')
+        t.equal(data.toString(), hello, 'hello received')
         peer.send(goodbye)
         sw2.close(function () {
           t.pass('swarm sw2 closed')
