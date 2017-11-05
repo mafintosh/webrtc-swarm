@@ -67,11 +67,24 @@ WebRTCSwarm.prototype.close = function (cb) {
 }
 
 function setup (swarm, peer, id) {
+  var delayedStreams = []
+  function onStreamWhileNotConnected (stream) {
+    debug('on stream while peer', id, 'not connected', stream)
+    delayedStreams.push(stream)
+  }
+
+  peer.on('stream', onStreamWhileNotConnected)
+
   peer.on('connect', function () {
     debug('connected to peer', id)
     swarm.peers.push(peer)
     swarm.emit('peer', peer, id)
     swarm.emit('connect', peer, id)
+    delayedStreams.forEach(function (stream) {
+      peer.emit('stream', stream)
+    })
+    peer.removeListener('stream', onStreamWhileNotConnected)
+    delayedStreams = null
   })
 
   var onclose = once(function (err) {
