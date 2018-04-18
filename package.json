@@ -7,18 +7,18 @@
     "test": "standard && tape test.js"
   },
   "dependencies": {
-    "cuid": "^1.2.4",
-    "debug": "^2.2.0",
-    "inherits": "^2.0.1",
-    "once": "^1.3.1",
-    "simple-peer": "^6.0.1",
-    "through2": "^2.0.0"
+    "cuid": "^2.1.1",
+    "debug": "^3.1.0",
+    "inherits": "^2.0.3",
+    "once": "^1.4.0",
+    "simple-peer": "^9.0.0",
+    "through2": "^2.0.3"
   },
   "devDependencies": {
-    "electron-webrtc": "^0.2.6",
-    "signalhub": "^4.7.1",
-    "standard": "^7.1.2",
-    "tape": "^4.6.0"
+    "electron-webrtc": "^0.3.0",
+    "signalhub": "^4.9.0",
+    "standard": "^11.0.1",
+    "tape": "^4.9.0"
   },
   "repository": {
     "type": "git",
