@@ -88,7 +88,7 @@ function setup (swarm, peer, id) {
   function kick () {
     if (swarm.closed || sending || !signals.length) return
     sending = true
-    var data = {from: swarm.me, signal: signals.shift()}
+    var data = { from: swarm.me, signal: signals.shift() }
     data = swarm.wrap(data, id)
     swarm.hub.broadcast(id, data, function () {
       sending = false
@@ -174,7 +174,7 @@ function subscribe (swarm, hub) {
 
 function connect (swarm, hub) {
   if (swarm.closed || swarm.peers.length >= swarm.maxPeers) return
-  var data = {type: 'connect', from: swarm.me}
+  var data = { type: 'connect', from: swarm.me }
   data = swarm.wrap(data, 'all')
   hub.broadcast('all', data, function () {
     setTimeout(connect.bind(null, swarm, hub), Math.floor(Math.random() * 2000) + (swarm.peers.length ? 13000 : 3000))
