@@ -32,7 +32,9 @@ function WebRTCSwarm (hub, opts) {
   this.peers = []
   this.closed = false
 
-  subscribe(this, hub)
+  this.rand = Math.random()
+
+  subscribe(this, hub, this.rand)
 }
 
 inherits(WebRTCSwarm, events.EventEmitter)
@@ -105,7 +107,7 @@ function setup (swarm, peer, id) {
   peer.once('close', onclose)
 }
 
-function subscribe (swarm, hub) {
+function subscribe (swarm, hub, rand) {
   hub.subscribe('all').pipe(through.obj(function (data, enc, cb) {
     data = swarm.unwrap(data, 'all')
     if (swarm.closed || !data) return cb()
@@ -116,7 +118,7 @@ function subscribe (swarm, hub) {
       return cb()
     }
 
-    if (data.type === 'connect') {
+    if (data.type === 'connect' && rand > data.rand) {
       if (swarm.peers.length >= swarm.maxPeers) {
         debug('skipping because maxPeers is met', data.from)
         return cb()
@@ -143,7 +145,7 @@ function subscribe (swarm, hub) {
     cb()
   }))
 
-  hub.subscribe(swarm.me).once('open', connect.bind(null, swarm, hub)).pipe(through.obj(function (data, enc, cb) {
+  hub.subscribe(swarm.me).once('open', connect.bind(null, swarm, hub, rand)).pipe(through.obj(function (data, enc, cb) {
     data = swarm.unwrap(data, swarm.me)
     if (swarm.closed || !data) return cb()
 
@@ -172,11 +174,11 @@ function subscribe (swarm, hub) {
   }))
 }
 
-function connect (swarm, hub) {
+function connect (swarm, hub, rand) {
   if (swarm.closed || swarm.peers.length >= swarm.maxPeers) return
-  var data = {type: 'connect', from: swarm.me}
+  var data = {type: 'connect', from: swarm.me, rand}
   data = swarm.wrap(data, 'all')
   hub.broadcast('all', data, function () {
-    setTimeout(connect.bind(null, swarm, hub), Math.floor(Math.random() * 2000) + (swarm.peers.length ? 13000 : 3000))
+    setTimeout(connect.bind(null, swarm, hub, rand), Math.floor(Math.random() * 2000) + (swarm.peers.length ? 13000 : 3000))
   })
 }
