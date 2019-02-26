@@ -32,9 +32,7 @@ function WebRTCSwarm (hub, opts) {
   this.peers = []
   this.closed = false
 
-  this.rand = Math.random()
-
-  subscribe(this, hub, this.rand)
+  subscribe(this, hub)
 }
 
 inherits(WebRTCSwarm, events.EventEmitter)
@@ -107,7 +105,9 @@ function setup (swarm, peer, id) {
   peer.once('close', onclose)
 }
 
-function subscribe (swarm, hub, rand) {
+function subscribe (swarm, hub) {
+  const rand = Math.random()
+
   hub.subscribe('all').pipe(through.obj(function (data, enc, cb) {
     data = swarm.unwrap(data, 'all')
     if (swarm.closed || !data) return cb()
