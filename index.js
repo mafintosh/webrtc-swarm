@@ -45,8 +45,7 @@ WebRTCSwarm.prototype.close = function (cb) {
 
   if (cb) this.once('close', cb)
 
-  var self = this
-  this.hub.close(function () {
+  var closePeers = function () {
     var len = self.peers.length
     if (len > 0) {
       var closed = 0
@@ -63,7 +62,16 @@ WebRTCSwarm.prototype.close = function (cb) {
     } else {
       self.emit('close')
     }
-  })
+  }
+
+  var self = this
+  if (this.hub.opened) {
+    this.hub.close(function () {
+      closePeers()
+    })
+  } else {
+    closePeers()
+  }
 }
 
 function setup (swarm, peer, id) {
