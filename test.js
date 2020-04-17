@@ -16,8 +16,8 @@ server.listen(9000, function () {
     var hub1 = signalhub('app', 'localhost:9000')
     var hub2 = signalhub('app', 'localhost:9000')
 
-    var sw1 = swarm(hub1, {wrtc})
-    var sw2 = swarm(hub2, {wrtc})
+    var sw1 = swarm(hub1, { wrtc })
+    var sw2 = swarm(hub2, { wrtc })
 
     var hello = 'hello'
     var goodbye = 'goodbye'
