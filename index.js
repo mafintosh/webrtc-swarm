@@ -67,11 +67,10 @@ WebRTCSwarm.prototype.close = function (cb) {
 }
 
 function setup (swarm, peer, id) {
-  /* emit peer and connect events as soon as peers are available
-   * to allow stream negotiation  */
-  swarm.emit('peer', peer, id)
-  swarm.emit('connect', peer, id)
-  swarm.peers.push(peer)
+  /* emit peer-connecting events as soon as
+   * peers are available to allow delivery
+   * of 'track' events  */
+  swarm.emit('peer-connecting', peer, id)
   peer.on('connect', function () {
     debug('connected to peer', id)
     swarm.peers.push(peer)
