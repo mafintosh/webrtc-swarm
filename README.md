@@ -33,7 +33,7 @@ sw.on('disconnect', function (peer, id) {
 ## API
 
 ```js
-var swarm = require('webrtc-swarm')
+let swarm = require('webrtc-swarm')
 ```
 
 ### var sw = swarm(hub, opts)
@@ -70,6 +70,10 @@ constructor)
 ### sw.close()
 
 Disconnect from swarm
+
+### sw.on('peer-connecting', peer, id)
+
+Fires when a connection is being established to a new peer `peer`, with unique id `id`.
 
 ### sw.on('peer|connect', peer, id)
 

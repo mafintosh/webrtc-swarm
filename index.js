@@ -1,10 +1,10 @@
-var SimplePeer = require('simple-peer')
-var inherits = require('inherits')
-var events = require('events')
-var through = require('through2')
-var cuid = require('cuid')
-var once = require('once')
-var debug = require('debug')('webrtc-swarm')
+const SimplePeer = require('simple-peer')
+const inherits = require('inherits')
+const events = require('events')
+const through = require('through2')
+const cuid = require('cuid')
+const once = require('once')
+const debug = require('debug')('webrtc-swarm')
 
 module.exports = WebRTCSwarm
 
@@ -45,11 +45,11 @@ WebRTCSwarm.prototype.close = function (cb) {
 
   if (cb) this.once('close', cb)
 
-  var self = this
+  const self = this
   this.hub.close(function () {
-    var len = self.peers.length
+    const len = self.peers.length
     if (len > 0) {
-      var closed = 0
+      let closed = 0
       self.peers.forEach(function (peer) {
         peer.once('close', function () {
           if (++closed === len) {
@@ -67,6 +67,10 @@ WebRTCSwarm.prototype.close = function (cb) {
 }
 
 function setup (swarm, peer, id) {
+  /* emit peer-connecting events as soon as
+   * peers are available to allow delivery
+   * of 'track' events  */
+  swarm.emit('peer-connecting', peer, id)
   peer.on('connect', function () {
     debug('connected to peer', id)
     swarm.peers.push(peer)
@@ -74,21 +78,21 @@ function setup (swarm, peer, id) {
     swarm.emit('connect', peer, id)
   })
 
-  var onclose = once(function (err) {
+  const onclose = once(function (err) {
     debug('disconnected from peer', id, err)
     if (swarm.remotes[id] === peer) delete swarm.remotes[id]
-    var i = swarm.peers.indexOf(peer)
+    const i = swarm.peers.indexOf(peer)
     if (i > -1) swarm.peers.splice(i, 1)
     swarm.emit('disconnect', peer, id)
   })
 
-  var signals = []
-  var sending = false
+  const signals = []
+  let sending = false
 
   function kick () {
     if (swarm.closed || sending || !signals.length) return
     sending = true
-    var data = {from: swarm.me, signal: signals.shift()}
+    let data = { from: swarm.me, signal: signals.shift() }
     data = swarm.wrap(data, id)
     swarm.hub.broadcast(id, data, function () {
       sending = false
@@ -100,7 +104,6 @@ function setup (swarm, peer, id) {
     signals.push(sig)
     kick()
   })
-
   peer.on('error', onclose)
   peer.once('close', onclose)
 }
@@ -127,7 +130,7 @@ function subscribe (swarm, hub) {
       }
 
       debug('connecting to new peer (as initiator)', data.from)
-      var peer = new SimplePeer({
+      const peer = new SimplePeer({
         wrtc: swarm.wrtc,
         initiator: true,
         channelConfig: swarm.channelConfig,
@@ -147,7 +150,7 @@ function subscribe (swarm, hub) {
     data = swarm.unwrap(data, swarm.me)
     if (swarm.closed || !data) return cb()
 
-    var peer = swarm.remotes[data.from]
+    let peer = swarm.remotes[data.from]
     if (!peer) {
       if (!data.signal || data.signal.type !== 'offer') {
         debug('skipping non-offer', data)
@@ -174,7 +177,7 @@ function subscribe (swarm, hub) {
 
 function connect (swarm, hub) {
   if (swarm.closed || swarm.peers.length >= swarm.maxPeers) return
-  var data = {type: 'connect', from: swarm.me}
+  let data = { type: 'connect', from: swarm.me }
   data = swarm.wrap(data, 'all')
   hub.broadcast('all', data, function () {
     setTimeout(connect.bind(null, swarm, hub), Math.floor(Math.random() * 2000) + (swarm.peers.length ? 13000 : 3000))

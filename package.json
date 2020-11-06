@@ -1,24 +1,25 @@
 {
   "name": "webrtc-swarm",
-  "version": "2.9.0",
+  "version": "2.9.1",
   "description": "Create a swarm of p2p connections using webrtc and a signalhub",
   "main": "index.js",
   "scripts": {
     "test": "standard && tape test.js"
   },
   "dependencies": {
-    "cuid": "^1.2.4",
-    "debug": "^2.2.0",
-    "inherits": "^2.0.1",
-    "once": "^1.3.1",
-    "simple-peer": "^6.0.1",
-    "through2": "^2.0.0"
+    "cuid": "^2.1.8",
+    "debug": "^4.1.1",
+    "inherits": "^2.0.4",
+    "npm-check-updates": "^4.1.2",
+    "once": "^1.4.0",
+    "simple-peer": "^9.6.2",
+    "through2": "^3.0.1"
   },
   "devDependencies": {
-    "electron-webrtc": "^0.2.6",
-    "signalhub": "^4.7.1",
-    "standard": "^7.1.2",
-    "tape": "^4.6.0"
+    "electron-webrtc": "^0.3.0",
+    "signalhub": "^4.9.0",
+    "standard": "^14.3.3",
+    "tape": "^4.13.2"
   },
   "repository": {
     "type": "git",
